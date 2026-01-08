@@ -1,0 +1,14 @@
+# Игнорируем ненужные файлы при копировании в контейнер
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+.dockerignore
+README.md
+*.db
+*.db-shm
+*.db-wal
+# Для разработки можно добавить:
+# *.go
+# go.mod
+# go.sum

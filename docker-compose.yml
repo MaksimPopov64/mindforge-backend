@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # Сервис Ollama (наш ИИ-движок)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: mindforge-ollama
+    ports:
+      - "11434:11434" # Пробрасываем порт API Ollama
+    volumes:
+      - ollama_data:/root/.ollama # Сохраняем скачанные модели на хост
+    # Команда для автоматической загрузки модели при первом запуске
+    command: >
+      sh -c "ollama serve &
+             sleep 10 &&
+             ollama pull llama3.2 &&
+             wait"
+
+  # Наш Go-бэкенд
+  backend:
+    build: . # Собираем образ из Dockerfile в текущей папке
+    container_name: mindforge-backend
+    depends_on:
+      - ollama # Запускаем после ollama
+    ports:
+      - "8080:8080" # Веб-интерфейс и API
+    environment:
+      - OLLAMA_HOST=http://ollama:11434 # Важно: используем имя сервиса
+    volumes:
+      - db_data:/root/data # Постоянное хранилище для БД SQLite
+      # Для разработки можно монтировать исходный код:
+      # - ./:/app
+
+# Тома для сохранения данных между перезапусками контейнеров
+volumes:
+  ollama_data:
+  db_data:
